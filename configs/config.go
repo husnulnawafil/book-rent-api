@@ -6,13 +6,17 @@ import (
 )
 
 type AppConfig struct {
-	Port     string
-	Database struct {
+	Port  string
+	MySql struct {
 		Driver   string
 		Name     string
 		Address  string
 		Port     string
 		Username string
+		Password string
+	}
+	Redis struct {
+		Host     string
 		Password string
 	}
 }
@@ -33,13 +37,16 @@ func GetConfig() *AppConfig {
 
 func initConfig() *AppConfig {
 	var defaultConfig AppConfig
+
 	defaultConfig.Port = os.Getenv("APP_PORT")
-	defaultConfig.Database.Driver = os.Getenv("DB_DRIVER")
-	defaultConfig.Database.Name = os.Getenv("DB_NAME")
-	defaultConfig.Database.Address = os.Getenv("DB_ADDRESS")
-	defaultConfig.Database.Port = os.Getenv("DB_PORT")
-	defaultConfig.Database.Username = os.Getenv("DB_USERNAME")
-	defaultConfig.Database.Password = os.Getenv("DB_PASSWORD")
+	defaultConfig.MySql.Driver = os.Getenv("MYSQL_DRIVER")
+	defaultConfig.MySql.Name = os.Getenv("MYSQL_NAME")
+	defaultConfig.MySql.Address = os.Getenv("MYSQL_ADDRESS")
+	defaultConfig.MySql.Port = os.Getenv("MYSQL_PORT")
+	defaultConfig.MySql.Username = os.Getenv("MYSQL_USERNAME")
+	defaultConfig.MySql.Password = os.Getenv("MYSQL_PASSWORD")
+	defaultConfig.Redis.Host = os.Getenv("REDIS_HOST")
+	defaultConfig.Redis.Password = os.Getenv("REDIS_PASSWORD")
 
 	return &defaultConfig
 }

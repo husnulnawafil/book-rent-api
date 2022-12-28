@@ -9,17 +9,17 @@ import (
 	"gorm.io/gorm"
 )
 
-func InitDB(config *configs.AppConfig) *gorm.DB {
+func InitSQL(config *configs.AppConfig) *gorm.DB {
 
 	connectionString := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8&parseTime=True&loc=Local",
-		config.Database.Username,
-		config.Database.Password,
-		config.Database.Address,
-		config.Database.Port,
-		config.Database.Name,
+		config.MySql.Username,
+		config.MySql.Password,
+		config.MySql.Address,
+		config.MySql.Port,
+		config.MySql.Name,
 	)
 
-	db, err := gorm.Open(mysql.Open(connectionString), &gorm.Config{
+	sql, err := gorm.Open(mysql.Open(connectionString), &gorm.Config{
 		// DisableForeignKeyConstraintWhenMigrating: true,
 	})
 
@@ -28,8 +28,8 @@ func InitDB(config *configs.AppConfig) *gorm.DB {
 		panic(err)
 	}
 
-	InitialMigration(db)
-	return db
+	InitialMigration(sql)
+	return sql
 }
 
-func InitialMigration(db *gorm.DB) {}
+func InitialMigration(sql *gorm.DB) {}
