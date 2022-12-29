@@ -68,11 +68,11 @@ func (b *BookHandler) List() echo.HandlerFunc {
 		var r *modules.Response
 		limit, err := strconv.Atoi(c.QueryParam("limit"))
 		if err != nil {
-			limit = 0
+			return c.JSON(http.StatusBadRequest, r.SendResponse(err.Error(), http.StatusBadRequest, nil, nil))
 		}
 		page, err := strconv.Atoi(c.QueryParam("page"))
 		if err != nil {
-			page = 0
+			return c.JSON(http.StatusBadRequest, r.SendResponse(err.Error(), http.StatusBadRequest, nil, nil))
 		}
 		sort := c.QueryParam("sort")
 		sortBy := c.QueryParam("sortBy")
