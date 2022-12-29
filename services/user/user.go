@@ -20,9 +20,9 @@ func NewUserService(userRepo repositories.UserRepositoriesInterface) UserService
 
 type UserServiceInterface interface {
 	Create(data *models.User) (user *models.User, code int, err error)
-	Get(id int) (user *models.User, code int, err error)
-	Update(id int, data *models.User) (user *models.User, code int, err error)
-	Delete(id int) (user *models.User, err error)
+	Get(id uint) (user *models.User, code int, err error)
+	Update(id uint, data *models.User) (user *models.User, code int, err error)
+	Delete(id uint) (user *models.User, err error)
 }
 
 func (u *userService) Create(data *models.User) (user *models.User, code int, err error) {
@@ -33,7 +33,7 @@ func (u *userService) Create(data *models.User) (user *models.User, code int, er
 	return
 }
 
-func (u *userService) Get(id int) (user *models.User, code int, err error) {
+func (u *userService) Get(id uint) (user *models.User, code int, err error) {
 	user, err = u.userRepo.Get(id)
 	if err != nil {
 		return nil, http.StatusUnprocessableEntity, errors.New("user_not_found")
@@ -41,10 +41,10 @@ func (u *userService) Get(id int) (user *models.User, code int, err error) {
 	return
 }
 
-func (u *userService) Update(id int, data *models.User) (user *models.User, code int, err error) {
+func (u *userService) Update(id uint, data *models.User) (user *models.User, code int, err error) {
 	return
 }
 
-func (u *userService) Delete(id int) (user *models.User, err error) {
+func (u *userService) Delete(id uint) (user *models.User, err error) {
 	return
 }

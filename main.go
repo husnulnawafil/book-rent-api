@@ -30,7 +30,7 @@ func main() {
 	userHandler := uh.NewUserHandler(userService)
 
 	bookRepo := br.NewBookRepository(sql, rds)
-	bookService := bs.NewBookService(bookRepo)
+	bookService := bs.NewBookService(bookRepo, userRepo)
 	bookHandler := bh.NewUserHandler(bookService)
 
 	e := echo.New()

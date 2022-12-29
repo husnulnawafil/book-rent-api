@@ -20,9 +20,9 @@ func NewUserRepository(sql *gorm.DB, rds *redis.Client) *userRepository {
 
 type UserRepositoriesInterface interface {
 	Create(data *models.User) (user *models.User, err error)
-	Get(id int) (user *models.User, err error)
-	Update(id int, data *models.User) (user *models.User, err error)
-	Delete(id int) (user *models.User, err error)
+	Get(id uint) (user *models.User, err error)
+	Update(id uint, data *models.User) (user *models.User, err error)
+	Delete(id uint) (user *models.User, err error)
 }
 
 func (u *userRepository) Create(data *models.User) (user *models.User, err error) {
@@ -34,7 +34,7 @@ func (u *userRepository) Create(data *models.User) (user *models.User, err error
 	return
 }
 
-func (u *userRepository) Get(id int) (user *models.User, err error) {
+func (u *userRepository) Get(id uint) (user *models.User, err error) {
 	tx := u.Sql.First(&user, id)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -42,10 +42,10 @@ func (u *userRepository) Get(id int) (user *models.User, err error) {
 	return
 }
 
-func (u *userRepository) Update(id int, data *models.User) (user *models.User, err error) {
+func (u *userRepository) Update(id uint, data *models.User) (user *models.User, err error) {
 	return
 }
 
-func (u *userRepository) Delete(id int) (user *models.User, err error) {
+func (u *userRepository) Delete(id uint) (user *models.User, err error) {
 	return
 }

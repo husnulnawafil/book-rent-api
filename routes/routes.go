@@ -17,5 +17,5 @@ func BookPath(e *echo.Echo, bh *bh.BookHandler) {
 	e.GET("/books/:id", bh.Get())
 	e.PUT("/books/:id", bh.Update())
 	e.DELETE("/books/:id", bh.Delete())
-	e.GET("/books/", bh.List())
+	e.GET("/books", bh.List())
 }

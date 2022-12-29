@@ -9,4 +9,5 @@ type User struct {
 	Email     string `gorm:"not null;unique" json:"email" form:"email"`
 	Phone     string `gorm:"not null;unique" json:"phone" form:"phone"`
 	Balance   int    `gorm:"not null" json:"balance" form:"balance"`
+	Books     []Book `gorm:"foreignKey:Owner;references:ID"`
 }

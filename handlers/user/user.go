@@ -51,6 +51,7 @@ func (u *UserHandler) Create() echo.HandlerFunc {
 		return c.JSON(http.StatusCreated, r.SendResponse("success", http.StatusCreated, user, nil))
 	}
 }
+
 func (u *UserHandler) Get() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var r *modules.Response
@@ -59,18 +60,20 @@ func (u *UserHandler) Get() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, r.SendResponse("id_must_be_an_integer", http.StatusBadRequest, nil, nil))
 		}
 
-		user, code, err := u.userService.Get(id)
+		user, code, err := u.userService.Get(uint(id))
 		if err != nil {
 			return c.JSON(code, r.SendResponse(err.Error(), code, nil, nil))
 		}
 		return c.JSON(http.StatusOK, r.SendResponse("success", http.StatusOK, user, nil))
 	}
 }
+
 func (u *UserHandler) Update() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.JSON(http.StatusOK, nil)
 	}
 }
+
 func (u *UserHandler) Delete() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.JSON(http.StatusOK, nil)
