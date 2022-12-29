@@ -26,11 +26,10 @@ func main() {
 	rds := utils.InitRedis(config)
 
 	userRepo := ur.NewUserRepository(sql, rds)
-	userService := us.NewUserService(userRepo)
-	userHandler := uh.NewUserHandler(userService)
-
 	bookRepo := br.NewBookRepository(sql, rds)
+	userService := us.NewUserService(userRepo, bookRepo)
 	bookService := bs.NewBookService(bookRepo, userRepo)
+	userHandler := uh.NewUserHandler(userService)
 	bookHandler := bh.NewUserHandler(bookService)
 
 	e := echo.New()

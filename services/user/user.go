@@ -5,16 +5,19 @@ import (
 	"net/http"
 
 	"github.com/husnulnawafil/dot-id-task/models"
-	repositories "github.com/husnulnawafil/dot-id-task/repositories/user"
+	bookRepositories "github.com/husnulnawafil/dot-id-task/repositories/book"
+	userRepositories "github.com/husnulnawafil/dot-id-task/repositories/user"
 )
 
 type userService struct {
-	userRepo repositories.UserRepositoriesInterface
+	userRepo userRepositories.UserRepositoriesInterface
+	bookRepo bookRepositories.BookRepositoriesInterface
 }
 
-func NewUserService(userRepo repositories.UserRepositoriesInterface) UserServiceInterface {
+func NewUserService(userRepo userRepositories.UserRepositoriesInterface, bookRepo bookRepositories.BookRepositoriesInterface) UserServiceInterface {
 	return &userService{
 		userRepo: userRepo,
+		bookRepo: bookRepo,
 	}
 }
 
@@ -38,6 +41,12 @@ func (u *userService) Get(id uint) (user *models.User, code int, err error) {
 	if err != nil {
 		return nil, http.StatusUnprocessableEntity, errors.New("user_not_found")
 	}
+
+	books, _ := u.bookRepo.ListByOwner(id)
+	if len(books) > 0 {
+		user.Books = books
+	}
+
 	return
 }
 
