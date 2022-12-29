@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/husnulnawafil/dot-id-task/configs"
+	"github.com/husnulnawafil/dot-id-task/models"
 	"github.com/labstack/gommon/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -32,4 +33,7 @@ func InitSQL(config *configs.AppConfig) *gorm.DB {
 	return sql
 }
 
-func InitialMigration(sql *gorm.DB) {}
+func InitialMigration(sql *gorm.DB) {
+	sql.AutoMigrate(&models.User{})
+	sql.AutoMigrate(&models.Book{})
+}

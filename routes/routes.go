@@ -1,8 +1,8 @@
 package routes
 
 import (
-	bh "github.com/husnulnawafil/dot-id-task/handler/book"
-	uh "github.com/husnulnawafil/dot-id-task/handler/user"
+	bh "github.com/husnulnawafil/dot-id-task/handlers/book"
+	uh "github.com/husnulnawafil/dot-id-task/handlers/user"
 	"github.com/labstack/echo/v4"
 )
 

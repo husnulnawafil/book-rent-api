@@ -1,9 +1,9 @@
-package handler
+package handlers
 
 import (
 	"net/http"
 
-	service "github.com/husnulnawafil/dot-id-task/service/book"
+	service "github.com/husnulnawafil/dot-id-task/services/book"
 	"github.com/labstack/echo/v4"
 )
 
