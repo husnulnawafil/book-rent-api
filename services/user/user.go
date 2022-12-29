@@ -1,6 +1,8 @@
 package services
 
 import (
+	"net/http"
+
 	"github.com/husnulnawafil/dot-id-task/models"
 	repositories "github.com/husnulnawafil/dot-id-task/repositories/user"
 )
@@ -16,13 +18,17 @@ func NewUserService(userRepo repositories.UserRepositoriesInterface) UserService
 }
 
 type UserServiceInterface interface {
-	Create(data *models.User) (user *models.User, err error)
+	Create(data *models.User) (user *models.User, code int, err error)
 	Get(id int) (user *models.User, err error)
 	Update(id int, data *models.User) (user *models.User, err error)
 	Delete(id int) (user *models.User, err error)
 }
 
-func (u *userService) Create(data *models.User) (user *models.User, err error) {
+func (u *userService) Create(data *models.User) (user *models.User, code int, err error) {
+	user, err = u.userRepo.Create(data)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
 	return
 }
 

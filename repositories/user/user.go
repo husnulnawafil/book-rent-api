@@ -26,6 +26,11 @@ type UserRepositoriesInterface interface {
 }
 
 func (u *userRepository) Create(data *models.User) (user *models.User, err error) {
+	tx := u.Sql.Create(data)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	user = data
 	return
 }
 

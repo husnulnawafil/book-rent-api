@@ -28,7 +28,7 @@ func (u *UserHandler) Create() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, r.SendResponse("error_binding_data", http.StatusBadRequest, nil, nil))
 		}
 
-		if isValid := req.Email != "" || req.FirstName != "" || req.LastName != "" || req.Phone != ""; !isValid {
+		if isValid := req.Email != "" && req.FirstName != "" && req.LastName != "" && req.Phone != ""; !isValid {
 			return c.JSON(http.StatusBadRequest, r.SendResponse("please_fill_all_the_fields", http.StatusBadRequest, nil, nil))
 		}
 
@@ -42,9 +42,9 @@ func (u *UserHandler) Create() echo.HandlerFunc {
 		}
 		req.Phone = phone
 
-		user, err := u.userService.Create(&req)
+		user, code, err := u.userService.Create(&req)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, r.SendResponse(err.Error(), http.StatusBadRequest, nil, nil))
+			return c.JSON(code, r.SendResponse(err.Error(), code, nil, nil))
 		}
 
 		return c.JSON(http.StatusCreated, r.SendResponse("success", http.StatusCreated, user, nil))
