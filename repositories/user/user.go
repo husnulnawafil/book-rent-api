@@ -35,6 +35,10 @@ func (u *userRepository) Create(data *models.User) (user *models.User, err error
 }
 
 func (u *userRepository) Get(id int) (user *models.User, err error) {
+	tx := u.Sql.First(&user, id)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
 	return
 }
 

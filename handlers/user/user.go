@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/husnulnawafil/dot-id-task/models"
 	"github.com/husnulnawafil/dot-id-task/modules"
@@ -52,7 +53,17 @@ func (u *UserHandler) Create() echo.HandlerFunc {
 }
 func (u *UserHandler) Get() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		return c.JSON(http.StatusOK, nil)
+		var r *modules.Response
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, r.SendResponse("id_must_be_an_integer", http.StatusBadRequest, nil, nil))
+		}
+
+		user, code, err := u.userService.Get(id)
+		if err != nil {
+			return c.JSON(code, r.SendResponse(err.Error(), code, nil, nil))
+		}
+		return c.JSON(http.StatusOK, r.SendResponse("success", http.StatusOK, user, nil))
 	}
 }
 func (u *UserHandler) Update() echo.HandlerFunc {
