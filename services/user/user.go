@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -37,6 +38,21 @@ func (u *userService) Create(data *models.User) (user *models.User, code int, er
 }
 
 func (u *userService) Get(id uint) (user *models.User, code int, err error) {
+	res, _ := u.userRepo.GetCache(u.userRepo.Get, id, user)
+	if res != nil {
+		byteData, err := json.Marshal(res)
+		if err != nil {
+			return nil, http.StatusInternalServerError, err
+		}
+
+		err = json.Unmarshal(byteData, &user)
+		if err != nil {
+			return nil, http.StatusInternalServerError, err
+		}
+
+		return user, http.StatusOK, nil
+	}
+
 	user, err = u.userRepo.Get(id)
 	if err != nil {
 		return nil, http.StatusUnprocessableEntity, errors.New("user_not_found")
@@ -47,10 +63,15 @@ func (u *userService) Get(id uint) (user *models.User, code int, err error) {
 		user.Books = books
 	}
 
+	if err = u.userRepo.SetCache(u.userRepo.Get, id, user); err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+
 	return
 }
 
 func (u *userService) Update(id uint, data interface{}) (user *models.User, code int, err error) {
+	u.userRepo.DeleteCache(u.userRepo.Get, id)
 	err = u.userRepo.Update(id, data)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
@@ -65,6 +86,7 @@ func (u *userService) Update(id uint, data interface{}) (user *models.User, code
 }
 
 func (u *userService) Delete(id uint) (err error) {
+	u.userRepo.DeleteCache(u.userRepo.Get, id)
 	err = u.userRepo.Delete(id)
 	return
 }

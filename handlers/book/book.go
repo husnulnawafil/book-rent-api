@@ -66,13 +66,14 @@ func (b *BookHandler) Get() echo.HandlerFunc {
 func (b *BookHandler) List() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var r *modules.Response
-
-		limit, err := strconv.Atoi(c.QueryParam("limit"))
-		if err != nil {
+		limitQuery := c.QueryParam("limit")
+		pageQuery := c.QueryParam("page")
+		limit, err := strconv.Atoi(limitQuery)
+		if err != nil && limitQuery != "" {
 			return c.JSON(http.StatusBadRequest, r.SendResponse("limit_must_be_integer", http.StatusBadRequest, nil, nil))
 		}
-		page, err := strconv.Atoi(c.QueryParam("page"))
-		if err != nil {
+		page, err := strconv.Atoi(pageQuery)
+		if err != nil && limitQuery != "" {
 			return c.JSON(http.StatusBadRequest, r.SendResponse("page_must_be_integer", http.StatusBadRequest, nil, nil))
 		}
 		sort := c.QueryParam("sort")

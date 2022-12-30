@@ -1,6 +1,10 @@
 package repositories
 
 import (
+	"context"
+	"encoding/json"
+	"errors"
+
 	"github.com/go-redis/redis/v9"
 	"github.com/husnulnawafil/dot-id-task/models"
 	"github.com/husnulnawafil/dot-id-task/modules"
@@ -26,6 +30,9 @@ type BookRepositoriesInterface interface {
 	Update(id uint, data interface{}) (err error)
 	Delete(id uint) (err error)
 	ListByOwner(owner uint) (books []*models.Book, err error)
+	SetCache(f, id, data interface{}) (err error)
+	GetCache(f, id, model interface{}) (data interface{}, err error)
+	DeleteCache(f, id interface{}) (err error)
 }
 
 func (b *bookRepository) Create(data *models.Book) (book *models.Book, err error) {
@@ -80,5 +87,45 @@ func (b *bookRepository) Delete(id uint) (err error) {
 		return tx.Error
 	}
 
+	return
+}
+
+func (b *bookRepository) SetCache(f, id, data interface{}) (err error) {
+	c := context.Background()
+	rdsData, err := json.Marshal(data)
+	if err != nil {
+		return
+	}
+
+	key := modules.GenerateRedisKey(f, id)
+	err = b.Rds.Set(c, key, rdsData, 0).Err()
+
+	return
+}
+
+func (b *bookRepository) GetCache(f, id, model interface{}) (data interface{}, err error) {
+	c := context.Background()
+	key := modules.GenerateRedisKey(f, id)
+	res, err := b.Rds.Get(c, key).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	if res == "" {
+		return nil, errors.New("data_not_found")
+	}
+
+	if err = json.Unmarshal([]byte(res), &model); err != nil {
+		return nil, err
+	}
+
+	data = model
+	return
+}
+
+func (b *bookRepository) DeleteCache(f, id interface{}) (err error) {
+	c := context.Background()
+	key := modules.GenerateRedisKey(f, id)
+	err = b.Rds.Del(c, key).Err()
 	return
 }

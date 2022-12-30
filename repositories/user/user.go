@@ -1,10 +1,13 @@
 package repositories
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 
 	"github.com/go-redis/redis/v9"
 	"github.com/husnulnawafil/dot-id-task/models"
+	"github.com/husnulnawafil/dot-id-task/modules"
 	"gorm.io/gorm"
 )
 
@@ -25,6 +28,9 @@ type UserRepositoriesInterface interface {
 	Get(id uint) (user *models.User, err error)
 	Update(id uint, data interface{}) (err error)
 	Delete(id uint) (err error)
+	SetCache(f, id, data interface{}) (err error)
+	GetCache(f, id, model interface{}) (data interface{}, err error)
+	DeleteCache(f, id interface{}) (err error)
 }
 
 func (u *userRepository) Create(data *models.User) (user *models.User, err error) {
@@ -73,5 +79,46 @@ func (u *userRepository) Delete(id uint) (err error) {
 
 		return nil
 	})
+	return
+}
+
+func (u *userRepository) SetCache(f, id, data interface{}) (err error) {
+	c := context.Background()
+	rdsData, err := json.Marshal(data)
+	if err != nil {
+		return
+	}
+
+	key := modules.GenerateRedisKey(f, id)
+
+	err = u.Rds.Set(c, key, rdsData, 0).Err()
+
+	return
+}
+
+func (u *userRepository) GetCache(f, id, model interface{}) (data interface{}, err error) {
+	c := context.Background()
+	key := modules.GenerateRedisKey(f, id)
+	res, err := u.Rds.Get(c, key).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	if res == "" {
+		return nil, errors.New("data_not_found")
+	}
+
+	if err = json.Unmarshal([]byte(res), &model); err != nil {
+		return nil, err
+	}
+
+	data = model
+	return
+}
+
+func (u *userRepository) DeleteCache(f, id interface{}) (err error) {
+	c := context.Background()
+	key := modules.GenerateRedisKey(f, id)
+	err = u.Rds.Del(c, key).Err()
 	return
 }

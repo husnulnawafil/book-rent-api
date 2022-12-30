@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -44,22 +45,79 @@ func (b *bookService) Create(data *models.Book) (book *models.Book, code int, er
 }
 
 func (b *bookService) Get(id uint) (book *models.Book, code int, err error) {
+	res, _ := b.bookRepo.GetCache(b.bookRepo.Get, id, book)
+	if res != nil {
+		byteData, err := json.Marshal(res)
+		if err != nil {
+			return nil, http.StatusInternalServerError, err
+		}
+
+		err = json.Unmarshal(byteData, &book)
+		if err != nil {
+			return nil, http.StatusInternalServerError, err
+		}
+
+		return book, http.StatusOK, nil
+	}
+
 	book, err = b.bookRepo.Get(id)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
+
+	if err = b.bookRepo.SetCache(b.bookRepo.Get, id, book); err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+
 	return
 }
 
 func (b *bookService) List(pagination *modules.Pagination) (books []*models.Book, pgn *modules.Pagination, code int, err error) {
+	type listBookRds struct {
+		Books []*models.Book
+		Pgn   *modules.Pagination
+	}
+
+	rdsData := &listBookRds{}
+	res, _ := b.bookRepo.GetCache(b.bookRepo.List, nil, books)
+	if res != nil {
+		byteData, err := json.Marshal(res)
+		if err != nil {
+			return nil, nil, http.StatusInternalServerError, err
+		}
+
+		err = json.Unmarshal(byteData, &rdsData)
+
+		if err != nil {
+			return nil, nil, http.StatusInternalServerError, err
+		}
+
+		if rdsData.Pgn == pagination {
+			return rdsData.Books, rdsData.Pgn, http.StatusOK, nil
+		}
+
+	}
+
 	books, pgn, err = b.bookRepo.List(pagination)
 	if err != nil {
 		return nil, nil, http.StatusInternalServerError, err
 	}
+
+	rdsData = &listBookRds{
+		Books: books,
+		Pgn:   pgn,
+	}
+
+	if err = b.bookRepo.SetCache(b.bookRepo.List, nil, rdsData); err != nil {
+		return nil, nil, http.StatusInternalServerError, err
+	}
+
 	return
 }
 
 func (b *bookService) Update(id uint, data interface{}) (book *models.Book, code int, err error) {
+	b.userRepo.DeleteCache(b.bookRepo.Get, id)
+	b.userRepo.DeleteCache(b.bookRepo.List, nil)
 	err = b.bookRepo.Update(id, data)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
@@ -69,10 +127,13 @@ func (b *bookService) Update(id uint, data interface{}) (book *models.Book, code
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
+
 	return
 }
 
 func (b *bookService) Delete(id uint) (err error) {
+	b.userRepo.DeleteCache(b.bookRepo.Get, id)
+	b.userRepo.DeleteCache(b.bookRepo.List, nil)
 	err = b.bookRepo.Delete(id)
 	return
 }
