@@ -70,7 +70,48 @@ func (u *UserHandler) Get() echo.HandlerFunc {
 
 func (u *UserHandler) Update() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		return c.JSON(http.StatusOK, nil)
+		var r *modules.Response
+
+		req := map[string]interface{}{}
+		c.Bind(&req)
+		if _, ok := req["id"]; ok {
+			delete(req, "id")
+		}
+		if len(req) == 0 {
+			return c.JSON(http.StatusOK, r.SendResponse("nothing_to_be_updated", http.StatusOK, nil, nil))
+		}
+
+		if _, ok := req["email"]; ok {
+			if ok := modules.ValidateEmail(req["email"].(string)); !ok {
+				return c.JSON(http.StatusBadRequest, r.SendResponse("error_to_validate_email", http.StatusBadRequest, nil, nil))
+			}
+		}
+
+		if _, ok := req["email"]; ok {
+			if ok := modules.ValidateEmail(req["email"].(string)); !ok {
+				return c.JSON(http.StatusBadRequest, r.SendResponse("error_to_validate_email", http.StatusBadRequest, nil, nil))
+			}
+		}
+
+		if _, ok := req["phone"]; ok {
+			phone, err := modules.ValidatePhone(req["phone"].(string), "ID")
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, r.SendResponse("error_to_validate_phone", http.StatusBadRequest, nil, nil))
+			}
+			req["phone"] = phone
+		}
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, r.SendResponse("id_must_be_integer", http.StatusBadRequest, nil, nil))
+		}
+
+		user, code, err := u.userService.Update(uint(id), req)
+		if err != nil {
+			return c.JSON(code, r.SendResponse(err.Error(), code, user, nil))
+		}
+
+		return c.JSON(http.StatusOK, r.SendResponse("success", http.StatusOK, user, nil))
 	}
 }
 

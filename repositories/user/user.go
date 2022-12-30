@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"errors"
+
 	"github.com/go-redis/redis/v9"
 	"github.com/husnulnawafil/dot-id-task/models"
 	"gorm.io/gorm"
@@ -21,7 +23,7 @@ func NewUserRepository(sql *gorm.DB, rds *redis.Client) *userRepository {
 type UserRepositoriesInterface interface {
 	Create(data *models.User) (user *models.User, err error)
 	Get(id uint) (user *models.User, err error)
-	Update(id uint, data *models.User) (user *models.User, err error)
+	Update(id uint, data interface{}) (err error)
 	Delete(id uint) (user *models.User, err error)
 }
 
@@ -42,7 +44,16 @@ func (u *userRepository) Get(id uint) (user *models.User, err error) {
 	return
 }
 
-func (u *userRepository) Update(id uint, data *models.User) (user *models.User, err error) {
+func (u *userRepository) Update(id uint, data interface{}) (err error) {
+	user := &models.User{}
+	tx := u.Sql.Model(&user).Where("id = ?", id).Updates(data)
+	if tx.Error != nil {
+		return err
+	}
+
+	if tx.RowsAffected == 0 {
+		return errors.New("no_data_updated")
+	}
 	return
 }
 

@@ -23,7 +23,7 @@ type BookRepositoriesInterface interface {
 	Create(data *models.Book) (book *models.Book, err error)
 	Get(id uint) (book *models.Book, err error)
 	List(pagination *modules.Pagination) (books []*models.Book, pgn *modules.Pagination, err error)
-	Update(id uint, data *models.Book) (book *models.Book, err error)
+	Update(id uint, data interface{}) (err error)
 	Delete(id uint) (book *models.Book, err error)
 	ListByOwner(owner uint) (books []*models.Book, err error)
 }
@@ -64,7 +64,12 @@ func (b *bookRepository) List(pagination *modules.Pagination) (books []*models.B
 	return books, pgn, err
 }
 
-func (b *bookRepository) Update(id uint, data *models.Book) (book *models.Book, err error) {
+func (b *bookRepository) Update(id uint, data interface{}) (err error) {
+	book := &models.Book{}
+	tx := b.Sql.Model(&book).Where("id = ?", id).Updates(data)
+	if tx.Error != nil {
+		return err
+	}
 	return
 }
 

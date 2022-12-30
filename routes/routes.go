@@ -8,7 +8,7 @@ import (
 
 func UserPath(e *echo.Echo, uh *uh.UserHandler) {
 	e.POST("/users", uh.Create())
-	e.PATCH("/users", uh.Update())
+	e.PATCH("/users/:id", uh.Update())
 	e.GET("/users/:id", uh.Get())
 	e.DELETE("/users/:id", uh.Delete())
 }

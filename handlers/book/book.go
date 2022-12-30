@@ -68,11 +68,11 @@ func (b *BookHandler) List() echo.HandlerFunc {
 		var r *modules.Response
 		limit, err := strconv.Atoi(c.QueryParam("limit"))
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, r.SendResponse(err.Error(), http.StatusBadRequest, nil, nil))
+			return c.JSON(http.StatusBadRequest, r.SendResponse("limit_must_be_integer", http.StatusBadRequest, nil, nil))
 		}
 		page, err := strconv.Atoi(c.QueryParam("page"))
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, r.SendResponse(err.Error(), http.StatusBadRequest, nil, nil))
+			return c.JSON(http.StatusBadRequest, r.SendResponse("page_must_be_integer", http.StatusBadRequest, nil, nil))
 		}
 		sort := c.QueryParam("sort")
 		sortBy := c.QueryParam("sortBy")
@@ -92,7 +92,28 @@ func (b *BookHandler) List() echo.HandlerFunc {
 
 func (b *BookHandler) Update() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		return c.JSON(http.StatusOK, nil)
+		var r *modules.Response
+
+		req := map[string]interface{}{}
+		c.Bind(&req)
+		if _, ok := req["id"]; ok {
+			delete(req, "id")
+		}
+		if len(req) == 0 {
+			return c.JSON(http.StatusOK, r.SendResponse("nothing_to_be_updated", http.StatusOK, nil, nil))
+		}
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, r.SendResponse("id_must_be_integer", http.StatusBadRequest, nil, nil))
+		}
+
+		book, code, err := b.bookService.Update(uint(id), req)
+		if err != nil {
+			return c.JSON(code, r.SendResponse(err.Error(), code, book, nil))
+		}
+
+		return c.JSON(http.StatusOK, r.SendResponse("success", http.StatusOK, book, nil))
 	}
 }
 
