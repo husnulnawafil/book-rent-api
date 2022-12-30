@@ -86,6 +86,10 @@ func (u *userService) Update(id uint, data interface{}) (user *models.User, code
 }
 
 func (u *userService) Delete(id uint) (err error) {
+	user, _ := u.userRepo.Get(id)
+	if user == nil {
+		return errors.New("user_not_found")
+	}
 	u.userRepo.DeleteCache(u.userRepo.Get, id)
 	err = u.userRepo.Delete(id)
 	return

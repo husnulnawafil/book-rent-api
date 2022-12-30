@@ -132,6 +132,10 @@ func (b *bookService) Update(id uint, data interface{}) (book *models.Book, code
 }
 
 func (b *bookService) Delete(id uint) (err error) {
+	book, _ := b.bookRepo.Get(id)
+	if book == nil {
+		return errors.New("book_not_found")
+	}
 	b.userRepo.DeleteCache(b.bookRepo.Get, id)
 	b.userRepo.DeleteCache(b.bookRepo.List, nil)
 	err = b.bookRepo.Delete(id)
