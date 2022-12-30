@@ -15,7 +15,6 @@ type Book struct {
 	Name      string         `gorm:"not null" json:"name"`
 	Author    string         `gorm:"not null" json:"author"`
 	Publisher string         `gorm:"not null" json:"publisher"`
-	ISBN      string         `gorm:"not null" json:"isbn"`
-	Price     int            `gorm:"not null" json:"price"`
+	ISBN      string         `gorm:"not null;unique" json:"isbn"`
 	IsRent    bool           `gorm:"not null" json:"isRent"`
 }

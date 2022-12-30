@@ -34,8 +34,7 @@ func (b *BookHandler) Create() echo.HandlerFunc {
 			req.Owner != 0 &&
 			req.Author != "" &&
 			req.Publisher != "" &&
-			req.ISBN != "" &&
-			req.Price != 0; !isValid {
+			req.ISBN != ""; !isValid {
 			return c.JSON(http.StatusBadRequest, r.SendResponse("please_fill_all_the_fields", http.StatusBadRequest, nil, nil))
 		}
 
