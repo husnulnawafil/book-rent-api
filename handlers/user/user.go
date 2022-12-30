@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -74,11 +75,18 @@ func (u *UserHandler) Update() echo.HandlerFunc {
 
 		req := map[string]interface{}{}
 		c.Bind(&req)
-		if _, ok := req["id"]; ok {
-			delete(req, "id")
-		}
-		if len(req) == 0 {
-			return c.JSON(http.StatusOK, r.SendResponse("nothing_to_be_updated", http.StatusOK, nil, nil))
+		for i, v := range req {
+			if ok := i == "id"; ok {
+				delete(req, "id")
+			}
+
+			if len(req) == 0 {
+				return c.JSON(http.StatusOK, r.SendResponse("nothing_to_be_updated", http.StatusOK, nil, nil))
+			}
+
+			if v == "" {
+				return c.JSON(http.StatusBadRequest, r.SendResponse(fmt.Sprintf("%s_can_not_empty", i), http.StatusBadRequest, nil, nil))
+			}
 		}
 
 		if _, ok := req["email"]; ok {
