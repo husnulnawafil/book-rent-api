@@ -24,7 +24,7 @@ type UserRepositoriesInterface interface {
 	Create(data *models.User) (user *models.User, err error)
 	Get(id uint) (user *models.User, err error)
 	Update(id uint, data interface{}) (err error)
-	Delete(id uint) (user *models.User, err error)
+	Delete(id uint) (err error)
 }
 
 func (u *userRepository) Create(data *models.User) (user *models.User, err error) {
@@ -57,6 +57,21 @@ func (u *userRepository) Update(id uint, data interface{}) (err error) {
 	return
 }
 
-func (u *userRepository) Delete(id uint) (user *models.User, err error) {
+func (u *userRepository) Delete(id uint) (err error) {
+	var (
+		user = models.User{}
+		book = models.Book{}
+	)
+	u.Sql.Transaction(func(tx *gorm.DB) error {
+		if err = u.Sql.Where("owner = ?", id).Delete(&book).Error; err != nil {
+			return err
+		}
+
+		if err = u.Sql.Where("id = ?", id).Delete(&user).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
 	return
 }

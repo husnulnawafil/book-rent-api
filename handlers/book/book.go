@@ -67,6 +67,7 @@ func (b *BookHandler) Get() echo.HandlerFunc {
 func (b *BookHandler) List() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var r *modules.Response
+
 		limit, err := strconv.Atoi(c.QueryParam("limit"))
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, r.SendResponse("limit_must_be_integer", http.StatusBadRequest, nil, nil))
@@ -127,6 +128,17 @@ func (b *BookHandler) Update() echo.HandlerFunc {
 
 func (b *BookHandler) Delete() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		return c.JSON(http.StatusOK, nil)
+		var r *modules.Response
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, r.SendResponse("id_must_be_integer", http.StatusBadRequest, nil, nil))
+		}
+
+		if err = b.bookService.Delete(uint(id)); err != nil {
+			return c.JSON(http.StatusInternalServerError, r.SendResponse(err.Error(), http.StatusInternalServerError, nil, nil))
+		}
+
+		return c.JSON(http.StatusOK, r.SendResponse("success", http.StatusOK, nil, nil))
 	}
 }

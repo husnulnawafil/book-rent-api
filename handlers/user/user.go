@@ -125,6 +125,17 @@ func (u *UserHandler) Update() echo.HandlerFunc {
 
 func (u *UserHandler) Delete() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		return c.JSON(http.StatusOK, nil)
+		var r *modules.Response
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, r.SendResponse("id_must_be_integer", http.StatusBadRequest, nil, nil))
+		}
+
+		if err = u.userService.Delete(uint(id)); err != nil {
+			return c.JSON(http.StatusInternalServerError, r.SendResponse(err.Error(), http.StatusInternalServerError, nil, nil))
+		}
+
+		return c.JSON(http.StatusOK, r.SendResponse("success", http.StatusOK, nil, nil))
 	}
 }

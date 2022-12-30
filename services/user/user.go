@@ -25,7 +25,7 @@ type UserServiceInterface interface {
 	Create(data *models.User) (user *models.User, code int, err error)
 	Get(id uint) (user *models.User, code int, err error)
 	Update(id uint, data interface{}) (user *models.User, code int, err error)
-	Delete(id uint) (user *models.User, err error)
+	Delete(id uint) (err error)
 }
 
 func (u *userService) Create(data *models.User) (user *models.User, code int, err error) {
@@ -64,6 +64,7 @@ func (u *userService) Update(id uint, data interface{}) (user *models.User, code
 	return
 }
 
-func (u *userService) Delete(id uint) (user *models.User, err error) {
+func (u *userService) Delete(id uint) (err error) {
+	err = u.userRepo.Delete(id)
 	return
 }

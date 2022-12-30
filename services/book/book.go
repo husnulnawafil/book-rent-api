@@ -27,7 +27,7 @@ type BookServiceInterface interface {
 	Get(id uint) (book *models.Book, code int, err error)
 	List(pagination *modules.Pagination) (books []*models.Book, pgn *modules.Pagination, code int, err error)
 	Update(id uint, data interface{}) (book *models.Book, code int, err error)
-	Delete(id uint) (book *models.Book, err error)
+	Delete(id uint) (err error)
 }
 
 func (b *bookService) Create(data *models.Book) (book *models.Book, code int, err error) {
@@ -72,6 +72,7 @@ func (b *bookService) Update(id uint, data interface{}) (book *models.Book, code
 	return
 }
 
-func (b *bookService) Delete(id uint) (book *models.Book, err error) {
+func (b *bookService) Delete(id uint) (err error) {
+	err = b.bookRepo.Delete(id)
 	return
 }
